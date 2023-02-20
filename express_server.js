@@ -29,7 +29,9 @@ app.get('/urls', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  console.log(req.body, generateRandomString());
+  const id = generateRandomString();
+  urlDatabase[id] = req.body.longURL;
+  console.log(urlDatabase);
   res.send('Ok');
 });
 
