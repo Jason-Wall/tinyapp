@@ -19,8 +19,8 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+app.get("/", (req, res) => {
+  res.send("Hello!\n");
 });
 
 app.get('/urls', (req, res) => {
@@ -32,8 +32,13 @@ app.post('/urls', (req, res) => {
   const id = generateRandomString();
   urlDatabase[id] = req.body.longURL;
   console.log(urlDatabase);
-  res.send('Ok');
+  res.redirect(`/urls/${id}`);
 });
+
+app.get('/urls/new', (req, res) => {
+  res.render('urls_new');
+});
+
 
 app.get('/urls/:id', (req, res) => {
   const id = req.params.id;
@@ -42,9 +47,6 @@ app.get('/urls/:id', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello!\n");
-});
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
