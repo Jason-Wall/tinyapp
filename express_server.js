@@ -9,6 +9,9 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+app.get('/urls/new', (req, res) => {
+  res.render('urls_new');
+});
 
 app.get('/urls', (req, res) => {
   const templateVars = {urls: urlDatabase};
@@ -21,6 +24,7 @@ app.get('/urls/:id', (req, res) => {
   const templateVars = {id,longURL};
   res.render('urls_show', templateVars);
 });
+
 
 app.get("/", (req, res) => {
   res.send("Hello!\n");
