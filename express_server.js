@@ -4,6 +4,16 @@ const PORT = 8080; // default port 8080
 
 app.set('view engine', 'ejs');
 
+app.use(express.urlencoded({ extended: true }));
+
+const generateRandomString = () =>{
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+};
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -18,13 +28,17 @@ app.get('/urls', (req, res) => {
   res.render('urls_Index', templateVars);
 });
 
+app.post('/urls', (req, res) => {
+  console.log(req.body, generateRandomString());
+  res.send('Ok');
+});
+
 app.get('/urls/:id', (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
   const templateVars = {id,longURL};
   res.render('urls_show', templateVars);
 });
-
 
 app.get("/", (req, res) => {
   res.send("Hello!\n");
@@ -37,6 +51,8 @@ app.get("/hello", (req, res) => {
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
