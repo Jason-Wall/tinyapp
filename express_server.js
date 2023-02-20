@@ -41,6 +41,11 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
 
+app.get('/urls_error', (req, res) => {
+  const templateVars = {urls: urlDatabase};
+  res.render('urls_Index_error', templateVars);
+});
+
 app.get('/urls/:id', (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
@@ -51,7 +56,12 @@ app.get('/urls/:id', (req, res) => {
 
 // /u - /////////////////
 app.get('/u/:id', (req, res) => {
-  res.redirect(urlDatabase[req.params.id]);
+  const longURL = urlDatabase[req.params.id];
+  if (longURL) {
+    res.redirect(urlDatabase[req.params.id]);
+  } else {
+    res.redirect('/urls_error');
+  }
 });
 
 // app.get("/hello", (req, res) => {
