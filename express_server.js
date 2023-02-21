@@ -1,12 +1,24 @@
+// IMPORTS AND ASSIGNMENTS ///////////////
 const express = require("express");
 const app = express();
-const cookieParser = require('cookie-parser')
-const PORT = 8080; // default port 8080
-
+app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
-app.use(express.urlencoded({ extended: true }));
+const cookieParser = require('cookie-parser')
 app.use(cookieParser());
+
+const PORT = 8080;
+
+
+// DATABASE ////////////
+
+const urlDatabase = {
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com"
+};
+
+
+// HELPER FUNCTIONS
 
 const generateRandomString = () => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -17,10 +29,10 @@ const generateRandomString = () => {
   return result;
 };
 
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
+// SERVER /////////////////////////////////
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
 
 // GETS ////////////////
 
@@ -60,6 +72,7 @@ app.get('/urls_error', (req, res) => {
   res.render('urls_Index_error', templateVars);
 });
 
+
 // POSTS /////////////////
 
 // Create new url
@@ -97,7 +110,3 @@ app.post('/logout', (req, res) => {
   res.redirect(`/urls/`);
 })
 
-
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
