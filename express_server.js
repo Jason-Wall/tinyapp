@@ -6,7 +6,7 @@ app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({ extended: true }));
 
-const generateRandomString = () =>{
+const generateRandomString = () => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < 6; i++) {
@@ -20,53 +20,32 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-app.get("/", (req, res) => {
-  res.send("Hello!\n");
-});
+// GETS ////////////////
 
+// app.get("/", (req, res) => {
+//   res.send("Hello!\n");
+// });
 
-// /url ///////////////////
+// Go to summary/ home page.
 app.get('/urls', (req, res) => {
-  const templateVars = {urls: urlDatabase};
+  const templateVars = { urls: urlDatabase };
   res.render('urls_Index', templateVars);
 });
 
-app.post('/urls', (req, res) => {
-  const id = generateRandomString();
-  urlDatabase[id] = req.body.longURL;
-  res.redirect(`/urls/${id}`);
-});
-
+// Go to new URL page
 app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
 
-app.post('/urls/delete/:id', (req, res) => {
-  const id = req.params.id;
-  delete urlDatabase[id];
-  res.redirect(`/urls`);
-});
-
-app.get('/urls_error', (req, res) => {
-  const templateVars = {urls: urlDatabase};
-  res.render('urls_Index_error', templateVars);
-});
-
+// Go to individual short URL page
 app.get('/urls/:id', (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = {id,longURL};
+  const templateVars = { id, longURL };
   res.render('urls_show', templateVars);
 });
 
-app.post('/urls/:id', (req,res) => {
-  const id = req.params.id;
-  const newURL = req.body.longURL;
-  urlDatabase[id] = newURL;
-  res.redirect(`/urls/${id}`);
-})
-
-// /u - /////////////////
+// Redirect to long URL page.
 app.get('/u/:id', (req, res) => {
   const longURL = urlDatabase[req.params.id];
   if (longURL) {
@@ -76,15 +55,35 @@ app.get('/u/:id', (req, res) => {
   }
 });
 
-
-
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+// Error Page
+app.get('/urls_error', (req, res) => {
+  const templateVars = { urls: urlDatabase };
+  res.render('urls_Index_error', templateVars);
 });
+
+// POSTS /////////////////
+
+// Create new url
+app.post('/urls', (req, res) => {
+  const id = generateRandomString();
+  urlDatabase[id] = req.body.longURL;
+  res.redirect(`/urls/${id}`);
+});
+
+// Delete Entry
+app.post('/urls/delete/:id', (req, res) => {
+  const id = req.params.id;
+  delete urlDatabase[id];
+  res.redirect(`/urls`);
+});
+
+// Edit Entry
+app.post('/urls/:id', (req, res) => {
+  const id = req.params.id;
+  const newURL = req.body.longURL;
+  urlDatabase[id] = newURL;
+  res.redirect(`/urls/${id}`);
+})
 
 
 
