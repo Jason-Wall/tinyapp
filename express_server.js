@@ -59,6 +59,12 @@ app.get('/urls/:id', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+app.post('/urls/:id', (req,res) => {
+  const id = req.params.id;
+  const newURL = req.body.longURL;
+  urlDatabase[id] = newURL;
+  res.redirect(`/urls/${id}`);
+})
 
 // /u - /////////////////
 app.get('/u/:id', (req, res) => {
@@ -69,6 +75,8 @@ app.get('/u/:id', (req, res) => {
     res.redirect('/urls_error');
   }
 });
+
+
 
 // app.get("/hello", (req, res) => {
 //   res.send("<html><body>Hello <b>World</b></body></html>\n");
