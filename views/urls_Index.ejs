@@ -36,10 +36,11 @@
                 <a href="#"><%= urls[id] %></a>
               </td>
               <td>
-                <form class="form-inline" action="/urls" method="POST">
-                  <div class="form-group mb-2">
-                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
-                  </div>
+                <form action="/urls/delete/<%= id %>" method="POST">
+                    <button 
+                    type="submit" 
+                    name="deleteId"
+                    class="btn btn-outline-danger btn-sm"> Delete </button>
                 </form>
               </td>
             </tr>
