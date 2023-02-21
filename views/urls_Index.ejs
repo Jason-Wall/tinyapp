@@ -31,9 +31,9 @@
         <tbody>
           <% for (let id in urls) { %>
             <tr>
-              <td><%= id %></td>
+              <td><a href="/urls/<%= id %>"><%= id %></a></td>
               <td>
-                <a href="#"><%= urls[id] %></a>
+                <a href="<%= urls[id] %>"><%= urls[id] %></a>
               </td>
               <td>
                 <form action="/urls/delete/<%= id %>" method="POST">
