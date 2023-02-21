@@ -27,6 +27,9 @@
             style="width: 300px; margin: 1em"
           />
           <button type="submit" class="btn btn-success">Login</button>
+          <% if (username) { %>
+              <p>Welcome <%= username%></p>
+            <% }; %>
         </div>
       </form>
     </div>
