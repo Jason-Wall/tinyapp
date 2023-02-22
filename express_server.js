@@ -105,6 +105,12 @@ app.get('/register', (req, res) => {
   res.render('register', templateVars);
 });
 
+// Login Page
+app.get('/login', (req, res) => {
+  const templateVars = { user_id: userLookupById(req.cookies.user_id) };
+  res.render('login', templateVars);
+});
+
 
 
 // POSTS /////////////////
