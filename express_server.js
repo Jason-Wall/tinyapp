@@ -17,16 +17,29 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+  user3RandomID: {
+    id: "user3RandomID",
+    email: "a@a.com",
+    password: "b",
+  },
+};
+
 
 // HELPER FUNCTIONS
 
 const generateRandomString = () => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
+  return Math.random().toString(36).substring(2,5);
 };
 
 // SERVER /////////////////////////////////
@@ -38,13 +51,13 @@ app.listen(PORT, () => {
 
 // Go to summary/ home page.
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies.username };
+  const templateVars = { urls: urlDatabase, user_id: req.cookies.user_id };
   res.render('urls_Index', templateVars);
 });
 
 // Go to new URL page
 app.get('/urls/new', (req, res) => {
-  const templateVars = { username: req.cookies.username };
+  const templateVars = { user_id: req.cookies.user_id };
   res.render('urls_new', templateVars);
 });
 
@@ -52,7 +65,7 @@ app.get('/urls/new', (req, res) => {
 app.get('/urls/:id', (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = { id, longURL, username: req.cookies.username  };
+  const templateVars = { id, longURL, user_id: req.cookies.user_id  };
   res.render('urls_show', templateVars);
 });
 
@@ -68,24 +81,16 @@ app.get('/u/:id', (req, res) => {
 
 // Error Page
 app.get('/urls_error', (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies.username };
+  const templateVars = { urls: urlDatabase, user_id: req.cookies.user_id };
   res.render('urls_Index_error', templateVars);
 });
 
 // Register Page
 app.get('/register', (req, res) => {
-  const templateVars = { username: req.cookies.username };
+  const templateVars = { user_id: req.cookies.user_id };
   res.render('register', templateVars);
 });
 
-// app.get('/register', (req, res) => {
-//   const templateVars = { username: req.cookies.username };
-//   res.render('register', templateVars);
-// });
-
-// // app.get('/register', (req, res) => {
-//   res.render('register');
-// });
 
 
 // POSTS /////////////////
@@ -121,7 +126,22 @@ app.post('/login', (req, res) => {
 
 // Logout
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect(`/urls/`);
 })
+
+// Register new user
+app.post('/register',(req, res) =>{
+  const id = generateRandomString();
+  const newUser = {
+      id,
+      email: req.body.email,
+      password: req.body.password,
+    };
+    users[id] = newUser;
+
+    res.cookie('user_id', newUser);
+    res.redirect('/urls');  
+});
+
 
