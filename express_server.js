@@ -139,15 +139,23 @@ app.post('/urls/:id', (req, res) => {
 
 // Login
 app.post('/login', (req, res) => {
-  const username = req.body.username;
-  res.cookie('username', username);
+  const email = req.body.email;
+  const password = req.body.password;
+  const targetUser = findUserByEmail(users,email);
+
+   // Edge case - user does not exist or wrong password
+   if (!targetUser || targetUser.password !== password) {
+    return res.status(403).send('403 - Forbidden <br> Invalid username and password combination')
+  };
+
+  res.cookie('user_id', targetUser.id);
   res.redirect(`/urls/`);
 });
 
 // Logout
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id');
-  res.redirect(`/urls/`);
+  res.redirect(`/login`);
 });
 
 // Register new user
