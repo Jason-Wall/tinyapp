@@ -101,14 +101,18 @@ app.get('/urls_error', (req, res) => {
 
 // Register Page
 app.get('/register', (req, res) => {
-  const templateVars = { user_id: userLookupById(req.cookies.user_id) };
-  res.render('register', templateVars);
+  if (req.cookies.user_id) {
+    res.redirect('/urls')
+  }
+  res.render('register');
 });
 
 // Login Page
 app.get('/login', (req, res) => {
-  const templateVars = { user_id: userLookupById(req.cookies.user_id) };
-  res.render('login', templateVars);
+  if (req.cookies.user_id) {
+    res.redirect('/urls')
+  }
+  res.render('login');
 });
 
 
