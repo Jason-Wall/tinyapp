@@ -72,6 +72,21 @@ app.get('/urls_error', (req, res) => {
   res.render('urls_Index_error', templateVars);
 });
 
+// Register Page
+app.get('/register', (req, res) => {
+  const templateVars = { username: req.cookies.username };
+  res.render('register', templateVars);
+});
+
+// app.get('/register', (req, res) => {
+//   const templateVars = { username: req.cookies.username };
+//   res.render('register', templateVars);
+// });
+
+// // app.get('/register', (req, res) => {
+//   res.render('register');
+// });
+
 
 // POSTS /////////////////
 
