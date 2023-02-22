@@ -71,15 +71,23 @@ const findUserByEmail = (email) => {
   return null;
 };
 
-const urlsForUser = (id) => {
+const urlsForUser = (user_id) => {
   const allKeys = Object.keys(urlDatabase);
   const userURLs ={};
   for (let entry of allKeys) {
-    if (urlDatabase[entry].userID === id) {
+    if (urlDatabase[entry].userID === user_id) {
       userURLs[entry] = urlDatabase[entry];
     };
   };
   return userURLs;
+}
+
+const validateURLForUser = (URLid, user_id) => {
+  const userURLs = urlsForUser(user_id);
+  if (!userURLs[URLid]){
+    return false;
+  };
+  return true
 }
 
 
@@ -91,6 +99,13 @@ app.listen(PORT, () => {
 // GETS ////////////////
 
 // Go to summary/ home page.
+app.get('/', (req, res) => {
+  if (!req.cookies.user_id) {
+    res.redirect('/login')
+  }
+  res.redirect('/urls')
+})
+
 app.get('/urls', (req, res) => {
   if (!req.cookies.user_id) {
     res.redirect('/login')
@@ -117,9 +132,14 @@ app.get('/urls/:id', (req, res) => {
     res.redirect('/login')
   }
 
-  const id = req.params.id;
-  const longURL = urlDatabase[id].longURL;
-  const templateVars = { id, longURL, user_id: userLookupById(req.cookies.user_id)  };
+  const URLid = req.params.id;
+  const user_id = req.cookies.user_id;
+  if (!validateURLForUser(URLid, user_id)){
+    return res.status(404).send('404 - Not Found');
+  }
+
+  const longURL = urlDatabase[URLid].longURL;
+  const templateVars = { URLid, longURL, user_id: userLookupById(req.cookies.user_id)  };
   res.render('urls_show', templateVars);
 });
 
@@ -169,11 +189,11 @@ app.post('/urls', (req, res) => {
   if (!req.cookies.user_id) {
     return res.status(403).send('403 - Forbidden <br> Login to view content')
   }
-  const id = generateRandomString();
-  urlDatabase[id] ={};
-  urlDatabase[id].longURL = req.body.longURL;
-  urlDatabase[id].userID = req.cookies.user_id;
-  res.redirect(`/urls/${id}`);
+  const URLid = generateRandomString();
+  urlDatabase[URLid] ={};
+  urlDatabase[URLid].longURL = req.body.longURL;
+  urlDatabase[URLid].userID = req.cookies.user_id;
+  res.redirect(`/urls/${URLid}`);
 });
 
 // Delete Entry
@@ -182,13 +202,12 @@ app.post('/urls/:id/delete', (req, res) => {
     return res.status(403).send('403 - Forbidden <br> Login to view content')
   }
 
-  const id = req.params.id;
-  const userURLs = urlsForUser(req.cookies.user_id);
-  if (!userURLs[id]){
+  const URLid = req.params.id;
+  if (!validateURLForUser(URLid, req.cookies.user_id)){
     return res.status(404).send('404 - Not Found');
-  };
-  delete urlDatabase[id];
+  }
   
+  delete urlDatabase[URLid];
   res.redirect(`/urls`);
 });
 
@@ -197,10 +216,15 @@ app.post('/urls/:id', (req, res) => {
   if (!req.cookies.user_id) {
     return res.status(403).send('403 - Forbidden <br> Login to view content')
   }
-  const id = req.params.id;
+  
+  const URLid = req.params.id;
+  const user_id = req.cookies.user_id;
+  if (!validateURLForUser(URLid, user_id)){
+    return res.status(404).send('404 - Not Found');
+  }
   const newURL = req.body.longURL;
-  urlDatabase[id] = newURL;
-  res.redirect(`/urls/${id}`);
+  urlDatabase[URLid].longURL = newURL;
+  res.redirect(`/urls`);
 });
 
 // Login
