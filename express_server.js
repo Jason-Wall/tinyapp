@@ -21,6 +21,10 @@ const urlDatabase = {
     longURL: "https://www.google.ca",
     userID: "aJ48lW",
   },
+  goober: {
+    longURL: "https://www.youtube.com",
+    userID: "abcd",
+  },
 };
 
 const users = {
@@ -34,9 +38,14 @@ const users = {
     email: "user2@example.com",
     password: "dishwasher-funk",
   },
-  user3RandomID: {
+  aJ48lW: {
     id: "aJ48lW",
     email: "a@a.com",
+    password: "b",
+  },
+  abcd: {
+    id: "abcd",
+    email: "b@b.com",
     password: "b",
   },
 };
@@ -52,7 +61,7 @@ const userLookupById = (user_id) => {
   return users[user_id];
 };
 
-const findUserByEmail = (users, email) => {
+const findUserByEmail = (email) => {
   const allKeys = Object.keys(users);
   for (let id of allKeys) {
     if (users[id].email === email) {
@@ -61,6 +70,18 @@ const findUserByEmail = (users, email) => {
   };
   return null;
 };
+
+const urlsForUser = (id) => {
+  const allKeys = Object.keys(urlDatabase);
+  const userURLs ={};
+  for (let entry of allKeys) {
+    if (urlDatabase[entry].userID === id) {
+      userURLs[entry] = urlDatabase[entry];
+    };
+  };
+  return userURLs;
+}
+
 
 // SERVER /////////////////////////////////
 app.listen(PORT, () => {
@@ -74,8 +95,9 @@ app.get('/urls', (req, res) => {
   if (!req.cookies.user_id) {
     res.redirect('/login')
   }
-
-  const templateVars = { urls: urlDatabase, user_id: userLookupById(req.cookies.user_id) };
+  
+  const userURLs = urlsForUser(req.cookies.user_id);
+  const templateVars = { urls: userURLs, user_id: userLookupById(req.cookies.user_id) };
   res.render('urls_Index', templateVars);
 });
 
@@ -103,7 +125,7 @@ app.get('/urls/:id', (req, res) => {
 
 // Redirect to long URL page.
 app.get('/u/:id', (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id].longURL;
   if (longURL) {
     res.redirect(urlDatabase[req.params.id].longURL);
   } else {
@@ -148,18 +170,25 @@ app.post('/urls', (req, res) => {
     return res.status(403).send('403 - Forbidden <br> Login to view content')
   }
   const id = generateRandomString();
-  urlDatabase[id] = req.body.longURL;
+  urlDatabase[id] ={};
+  urlDatabase[id].longURL = req.body.longURL;
+  urlDatabase[id].userID = req.cookies.user_id;
   res.redirect(`/urls/${id}`);
 });
 
 // Delete Entry
-app.post('/urls/delete/:id', (req, res) => {
+app.post('/urls/:id/delete', (req, res) => {
   if (!req.cookies.user_id) {
     return res.status(403).send('403 - Forbidden <br> Login to view content')
   }
-  
+
   const id = req.params.id;
+  const userURLs = urlsForUser(req.cookies.user_id);
+  if (!userURLs[id]){
+    return res.status(404).send('404 - Not Found');
+  };
   delete urlDatabase[id];
+  
   res.redirect(`/urls`);
 });
 
@@ -178,7 +207,7 @@ app.post('/urls/:id', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const targetUser = findUserByEmail(users,email);
+  const targetUser = findUserByEmail(email);
 
    // Edge case - user does not exist or wrong password
    if (!targetUser || targetUser.password !== password) {
@@ -201,7 +230,7 @@ app.post('/register',(req, res) =>{
   const password = req.body.password;
 
   // Edge case - user already exists
-  if (findUserByEmail(users, email)) {
+  if (findUserByEmail(email)) {
     return res.status(400).send('400 - Bad Request <br> Username already exists')
   };
   // Edge case - empty user or pass
