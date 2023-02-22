@@ -13,8 +13,14 @@ const PORT = 8080;
 // DATABASE ////////////
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 const users = {
@@ -29,7 +35,7 @@ const users = {
     password: "dishwasher-funk",
   },
   user3RandomID: {
-    id: "user3RandomID",
+    id: "aJ48lW",
     email: "a@a.com",
     password: "b",
   },
@@ -90,7 +96,7 @@ app.get('/urls/:id', (req, res) => {
   }
 
   const id = req.params.id;
-  const longURL = urlDatabase[id];
+  const longURL = urlDatabase[id].longURL;
   const templateVars = { id, longURL, user_id: userLookupById(req.cookies.user_id)  };
   res.render('urls_show', templateVars);
 });
@@ -99,7 +105,7 @@ app.get('/urls/:id', (req, res) => {
 app.get('/u/:id', (req, res) => {
   const longURL = urlDatabase[req.params.id];
   if (longURL) {
-    res.redirect(urlDatabase[req.params.id]);
+    res.redirect(urlDatabase[req.params.id].longURL);
   } else {
     res.redirect('/urls_error');
   }
