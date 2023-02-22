@@ -65,18 +65,30 @@ app.listen(PORT, () => {
 
 // Go to summary/ home page.
 app.get('/urls', (req, res) => {
+  if (!req.cookies.user_id) {
+    res.redirect('/login')
+  }
+
   const templateVars = { urls: urlDatabase, user_id: userLookupById(req.cookies.user_id) };
   res.render('urls_Index', templateVars);
 });
 
 // Go to new URL page
 app.get('/urls/new', (req, res) => {
+  if (!req.cookies.user_id) {
+    res.redirect('/login')
+  }
+
   const templateVars = { user_id: userLookupById(req.cookies.user_id) };
   res.render('urls_new', templateVars);
 });
 
 // Go to individual short URL page
 app.get('/urls/:id', (req, res) => {
+  if (!req.cookies.user_id) {
+    res.redirect('/login')
+  }
+
   const id = req.params.id;
   const longURL = urlDatabase[id];
   const templateVars = { id, longURL, user_id: userLookupById(req.cookies.user_id)  };
@@ -95,6 +107,9 @@ app.get('/u/:id', (req, res) => {
 
 // Error Page
 app.get('/urls_error', (req, res) => {
+  if (!req.cookies.user_id) {
+    res.redirect('/login')
+  }
   const templateVars = { urls: urlDatabase, user_id: userLookupById(req.cookies.user_id) };
   res.render('urls_Index_error', templateVars);
 });
@@ -104,7 +119,8 @@ app.get('/register', (req, res) => {
   if (req.cookies.user_id) {
     res.redirect('/urls')
   }
-  res.render('register');
+  const templateVars = {user_id: null};
+  res.render('register', templateVars);
 });
 
 // Login Page
@@ -112,7 +128,8 @@ app.get('/login', (req, res) => {
   if (req.cookies.user_id) {
     res.redirect('/urls')
   }
-  res.render('login');
+  const templateVars = {user_id: null};
+  res.render('login',templateVars);
 });
 
 
@@ -121,6 +138,9 @@ app.get('/login', (req, res) => {
 
 // Create new url
 app.post('/urls', (req, res) => {
+  if (!req.cookies.user_id) {
+    return res.status(403).send('403 - Forbidden <br> Login to view content')
+  }
   const id = generateRandomString();
   urlDatabase[id] = req.body.longURL;
   res.redirect(`/urls/${id}`);
@@ -128,6 +148,10 @@ app.post('/urls', (req, res) => {
 
 // Delete Entry
 app.post('/urls/delete/:id', (req, res) => {
+  if (!req.cookies.user_id) {
+    return res.status(403).send('403 - Forbidden <br> Login to view content')
+  }
+  
   const id = req.params.id;
   delete urlDatabase[id];
   res.redirect(`/urls`);
@@ -135,6 +159,9 @@ app.post('/urls/delete/:id', (req, res) => {
 
 // Edit Entry
 app.post('/urls/:id', (req, res) => {
+  if (!req.cookies.user_id) {
+    return res.status(403).send('403 - Forbidden <br> Login to view content')
+  }
   const id = req.params.id;
   const newURL = req.body.longURL;
   urlDatabase[id] = newURL;

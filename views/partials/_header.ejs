@@ -18,26 +18,25 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
       
-      <% if (user_id) { %>
-        <p>Logged in as: <%= user_id.email%>!</p>
-        <form action="/logout" method="POST">
-          <button 
-          type="submit" 
-          name="logout"
-          class="btn btn-succes"> Logout </button>
-      </form>
-
-      <% } else { %>
-      <form class="form-inline" action="/login" method="GET">
-        <div class="form-group mb-2 ">
-          <button type="submit" class="btn btn-success">Login</button>
-        </div>
-      </form>
-      <form class="form-inline" action="/register" method="GET">
-        <div class="form-group mb-2 ">
-          <button type="submit" class="btn btn-success">Register</button>
-        </div>
-      </form>
+      <% if (!user_id) { %>
+        <form class="form-inline" action="/login" method="GET">
+          <div class="form-group mb-2 ">
+            <button type="submit" class="btn btn-success">Login</button>
+          </div>
+        </form>
+        <form class="form-inline" action="/register" method="GET">
+          <div class="form-group mb-2 ">
+            <button type="submit" class="btn btn-success">Register</button>
+          </div>
+        </form>
+        <% } else { %>
+          <p>Logged in as: <%= user_id.email%>!</p>
+          <form action="/logout" method="POST">
+            <button 
+            type="submit" 
+            name="logout"
+            class="btn btn-succes"> Logout </button>
+        </form>
         <% }; %>
         
     </div>
