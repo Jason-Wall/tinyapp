@@ -10,6 +10,11 @@ app.use(cookieSession({
   keys: ['key1', 'key2']
 }));
 
+const morgan = require('morgan');
+app.use(morgan('dev'));
+
+const bcrypt = require('bcryptjs'); // Password hashing
+
 const {
   generateRandomString,
   userLookupById,
@@ -17,8 +22,6 @@ const {
   urlsForUser,
   validateURLForUser
 } = require('./helpers.js'); //Helper functions
-
-const bcrypt = require('bcryptjs'); // Password hashing
 
 const PORT = 8080;
 
@@ -66,9 +69,6 @@ const users = {
   //   password: "b",
   // },
 };
-
-
-
 
 
 // SERVER /////////////////////////////////
@@ -219,7 +219,6 @@ app.post('/login', (req, res) => {
    if (!targetUser || !correctPassword) {
     return res.status(403).send('403 - Forbidden <br> Invalid username and password combination')
   };
-  console.log('targetUser.id');
 
   req.session.user_id = targetUser.id;
   res.redirect(`/urls/`);
@@ -234,23 +233,23 @@ app.post('/logout', (req, res) => {
 // Register new user
 app.post('/register',(req, res) =>{
   const email = req.body.email;
-  // const password = req.body.password;
-  const password = bcrypt.hashSync(req.body.password, 10);
-
-  // Edge case - user already exists
-  if (findUserByEmail(email, users)) {
-    return res.status(400).send('400 - Bad Request <br> Username already exists')
-  };
+  const password = req.body.password;
+  
   // Edge case - empty user or pass
   if (!email || !password){
     return res.status(400).send('400 - Bad Request <br> Invalid username and password combination');
   };
+  // Edge case - user already exists
+  if (findUserByEmail(email, users)) {
+    return res.status(400).send('400 - Bad Request <br> Username already exists')
+  };
   
   const id = generateRandomString();
+  const hashPassword = bcrypt.hashSync(password, 10); 
   const newUser = {
     id,
     email,
-    password,
+    password: hashPassword,
   };
   users[id] = newUser;
   req.session.user_id = id;
