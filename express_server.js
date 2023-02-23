@@ -115,7 +115,7 @@ app.listen(PORT, () => {
     const URLid = req.params.id;
     const user_id = req.session.user_id;
     if (!validateURLForUser(URLid, user_id, urlDatabase)){
-      return res.status(404).send('404 - Not Found');
+      return res.status(404).send('404 - Not Found - Short URL not in user list');
     }
 
     const longURL = urlDatabase[URLid].longURL;
@@ -167,7 +167,7 @@ app.listen(PORT, () => {
   // Create new url
   app.post('/urls', (req, res) => {
     if (!req.session.user_id) {
-      return res.status(403).send('403 - Forbidden <br> Login to view content')
+      return res.status(403).send('403 - Forbidden - Login to view content')
     }
     const URLid = generateRandomString();
     urlDatabase[URLid] ={};
@@ -179,12 +179,12 @@ app.listen(PORT, () => {
   // Delete Entry
   app.post('/urls/:id/delete', (req, res) => {
     if (!req.session.user_id) {
-      return res.status(403).send('403 - Forbidden <br> Login to view content')
+      return res.status(403).send('403 - Forbidden - Login to view content')
     }
 
     const URLid = req.params.id;
     if (!validateURLForUser(URLid, req.session.user_id, urlDatabase)){
-      return res.status(404).send('404 - Not Found');
+      return res.status(404).send('404 - Not Found - Short URL not in user list');
     }
     
     delete urlDatabase[URLid];
@@ -194,13 +194,13 @@ app.listen(PORT, () => {
   // Edit Entry
   app.post('/urls/:id', (req, res) => {
     if (!req.session.user_id) {
-      return res.status(403).send('403 - Forbidden <br> Login to view content')
+      return res.status(403).send('403 - Forbidden - Login to view content')
     }
     
     const URLid = req.params.id;
     const user_id = req.session.user_id;
     if (!validateURLForUser(URLid, user_id, urlDatabase)){
-      return res.status(404).send('404 - Not Found');
+      return res.status(404).send('404 - Not Found - Short URL not in user list');
     }
     const newURL = req.body.longURL;
     urlDatabase[URLid].longURL = newURL;
@@ -217,7 +217,7 @@ app.listen(PORT, () => {
 
     // Edge case - user does not exist or wrong password
     if (!targetUser || !correctPassword) {
-      return res.status(403).send('403 - Forbidden <br> Invalid username and password combination')
+      return res.status(400).send('400 - Bad Request - Invalid username and password combination')
     };
 
     req.session.user_id = targetUser.id;
@@ -237,11 +237,11 @@ app.listen(PORT, () => {
     
     // Edge case - empty user or pass
     if (!email || !password){
-      return res.status(400).send('400 - Bad Request <br> Invalid username and password combination');
+      return res.status(400).send('400 - Bad Request - Invalid username and password combination');
     };
     // Edge case - user already exists
     if (findUserByEmail(email, users)) {
-      return res.status(400).send('400 - Bad Request <br> Username already exists')
+      return res.status(400).send('400 - Bad Request - Username already exists')
     };
     
     const id = generateRandomString();
