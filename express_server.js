@@ -10,7 +10,15 @@ app.use(cookieSession({
   keys: ['key1', 'key2']
 }));
 
-const bcrypt = require('bcryptjs');
+const {
+  generateRandomString,
+  userLookupById,
+  findUserByEmail,
+  urlsForUser,
+  validateURLForUser
+} = require('./helpers.js'); //Helper functions
+
+const bcrypt = require('bcryptjs'); // Password hashing
 
 const PORT = 8080;
 
@@ -60,44 +68,7 @@ const users = {
 };
 
 
-// HELPER FUNCTIONS
 
-const generateRandomString = () => {
-  return Math.random().toString(36).substring(2,5);
-};
-
-const userLookupById = (user_id) => {
-  return users[user_id];
-};
-
-const findUserByEmail = (email) => {
-  const allKeys = Object.keys(users);
-  for (let id of allKeys) {
-    if (users[id].email === email) {
-      return users[id];
-    };
-  };
-  return null;
-};
-
-const urlsForUser = (user_id) => {
-  const allKeys = Object.keys(urlDatabase);
-  const userURLs ={};
-  for (let entry of allKeys) {
-    if (urlDatabase[entry].userID === user_id) {
-      userURLs[entry] = urlDatabase[entry];
-    };
-  };
-  return userURLs;
-}
-
-const validateURLForUser = (URLid, user_id) => {
-  const userURLs = urlsForUser(user_id);
-  if (!userURLs[URLid]){
-    return false;
-  };
-  return true
-}
 
 
 // SERVER /////////////////////////////////
@@ -120,8 +91,8 @@ app.get('/urls', (req, res) => {
     res.redirect('/login')
   }
   
-  const userURLs = urlsForUser(req.session.user_id);
-  const templateVars = { urls: userURLs, user_id: userLookupById(req.session.user_id) };
+  const userURLs = urlsForUser(req.session.user_id, urlDatabase);
+  const templateVars = { urls: userURLs, user_id: userLookupById(req.session.user_id, users) };
   res.render('urls_Index', templateVars);
 });
 
@@ -131,7 +102,7 @@ app.get('/urls/new', (req, res) => {
     res.redirect('/login')
   }
 
-  const templateVars = { user_id: userLookupById(req.session.user_id) };
+  const templateVars = { user_id: userLookupById(req.session.user_id, users) };
   res.render('urls_new', templateVars);
 });
 
@@ -143,12 +114,12 @@ app.get('/urls/:id', (req, res) => {
 
   const URLid = req.params.id;
   const user_id = req.session.user_id;
-  if (!validateURLForUser(URLid, user_id)){
+  if (!validateURLForUser(URLid, user_id, urlDatabase)){
     return res.status(404).send('404 - Not Found');
   }
 
   const longURL = urlDatabase[URLid].longURL;
-  const templateVars = { URLid, longURL, user_id: userLookupById(req.session.user_id)  };
+  const templateVars = { URLid, longURL, user_id: userLookupById(req.session.user_id, users)  };
   res.render('urls_show', templateVars);
 });
 
@@ -167,7 +138,7 @@ app.get('/urls_error', (req, res) => {
   if (!req.session.user_id) {
     res.redirect('/login')
   }
-  const templateVars = { urls: urlDatabase, user_id: userLookupById(req.session.user_id) };
+  const templateVars = { urls: urlDatabase, user_id: userLookupById(req.session.user_id, users) };
   res.render('urls_Index_error', templateVars);
 });
 
@@ -212,7 +183,7 @@ app.post('/urls/:id/delete', (req, res) => {
   }
 
   const URLid = req.params.id;
-  if (!validateURLForUser(URLid, req.session.user_id)){
+  if (!validateURLForUser(URLid, req.session.user_id, urlDatabase)){
     return res.status(404).send('404 - Not Found');
   }
   
@@ -228,7 +199,7 @@ app.post('/urls/:id', (req, res) => {
   
   const URLid = req.params.id;
   const user_id = req.session.user_id;
-  if (!validateURLForUser(URLid, user_id)){
+  if (!validateURLForUser(URLid, user_id, urlDatabase)){
     return res.status(404).send('404 - Not Found');
   }
   const newURL = req.body.longURL;
@@ -240,7 +211,7 @@ app.post('/urls/:id', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const targetUser = findUserByEmail(email);
+  const targetUser = findUserByEmail(email, users);
 
   const correctPassword = bcrypt.compareSync(password, targetUser.password);
 
@@ -267,7 +238,7 @@ app.post('/register',(req, res) =>{
   const password = bcrypt.hashSync(req.body.password, 10);
 
   // Edge case - user already exists
-  if (findUserByEmail(email)) {
+  if (findUserByEmail(email, users)) {
     return res.status(400).send('400 - Bad Request <br> Username already exists')
   };
   // Edge case - empty user or pass
