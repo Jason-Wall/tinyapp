@@ -4,8 +4,11 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
 
 const bcrypt = require('bcryptjs');
 
@@ -106,46 +109,46 @@ app.listen(PORT, () => {
 
 // Go to summary/ home page.
 app.get('/', (req, res) => {
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     res.redirect('/login')
   }
   res.redirect('/urls')
 })
 
 app.get('/urls', (req, res) => {
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     res.redirect('/login')
   }
   
-  const userURLs = urlsForUser(req.cookies.user_id);
-  const templateVars = { urls: userURLs, user_id: userLookupById(req.cookies.user_id) };
+  const userURLs = urlsForUser(req.session.user_id);
+  const templateVars = { urls: userURLs, user_id: userLookupById(req.session.user_id) };
   res.render('urls_Index', templateVars);
 });
 
 // Go to new URL page
 app.get('/urls/new', (req, res) => {
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     res.redirect('/login')
   }
 
-  const templateVars = { user_id: userLookupById(req.cookies.user_id) };
+  const templateVars = { user_id: userLookupById(req.session.user_id) };
   res.render('urls_new', templateVars);
 });
 
 // Go to individual short URL page
 app.get('/urls/:id', (req, res) => {
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     res.redirect('/login')
   }
 
   const URLid = req.params.id;
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   if (!validateURLForUser(URLid, user_id)){
     return res.status(404).send('404 - Not Found');
   }
 
   const longURL = urlDatabase[URLid].longURL;
-  const templateVars = { URLid, longURL, user_id: userLookupById(req.cookies.user_id)  };
+  const templateVars = { URLid, longURL, user_id: userLookupById(req.session.user_id)  };
   res.render('urls_show', templateVars);
 });
 
@@ -161,16 +164,16 @@ app.get('/u/:id', (req, res) => {
 
 // Error Page
 app.get('/urls_error', (req, res) => {
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     res.redirect('/login')
   }
-  const templateVars = { urls: urlDatabase, user_id: userLookupById(req.cookies.user_id) };
+  const templateVars = { urls: urlDatabase, user_id: userLookupById(req.session.user_id) };
   res.render('urls_Index_error', templateVars);
 });
 
 // Register Page
 app.get('/register', (req, res) => {
-  if (req.cookies.user_id) {
+  if (req.session.user_id) {
     res.redirect('/urls')
   }
   const templateVars = {user_id: null};
@@ -179,7 +182,7 @@ app.get('/register', (req, res) => {
 
 // Login Page
 app.get('/login', (req, res) => {
-  if (req.cookies.user_id) {
+  if (req.session.user_id) {
     res.redirect('/urls')
   }
   const templateVars = {user_id: null};
@@ -192,24 +195,24 @@ app.get('/login', (req, res) => {
 
 // Create new url
 app.post('/urls', (req, res) => {
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     return res.status(403).send('403 - Forbidden <br> Login to view content')
   }
   const URLid = generateRandomString();
   urlDatabase[URLid] ={};
   urlDatabase[URLid].longURL = req.body.longURL;
-  urlDatabase[URLid].userID = req.cookies.user_id;
+  urlDatabase[URLid].userID = req.session.user_id;
   res.redirect(`/urls/${URLid}`);
 });
 
 // Delete Entry
 app.post('/urls/:id/delete', (req, res) => {
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     return res.status(403).send('403 - Forbidden <br> Login to view content')
   }
 
   const URLid = req.params.id;
-  if (!validateURLForUser(URLid, req.cookies.user_id)){
+  if (!validateURLForUser(URLid, req.session.user_id)){
     return res.status(404).send('404 - Not Found');
   }
   
@@ -219,12 +222,12 @@ app.post('/urls/:id/delete', (req, res) => {
 
 // Edit Entry
 app.post('/urls/:id', (req, res) => {
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     return res.status(403).send('403 - Forbidden <br> Login to view content')
   }
   
   const URLid = req.params.id;
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   if (!validateURLForUser(URLid, user_id)){
     return res.status(404).send('404 - Not Found');
   }
@@ -245,14 +248,15 @@ app.post('/login', (req, res) => {
    if (!targetUser || !correctPassword) {
     return res.status(403).send('403 - Forbidden <br> Invalid username and password combination')
   };
+  console.log('targetUser.id');
 
-  res.cookie('user_id', targetUser.id);
+  req.session.user_id = targetUser.id;
   res.redirect(`/urls/`);
 });
 
 // Logout
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id');
+  req.session = null;
   res.redirect(`/login`);
 });
 
@@ -278,7 +282,7 @@ app.post('/register',(req, res) =>{
     password,
   };
   users[id] = newUser;
-  res.cookie('user_id', id);
+  req.session.user_id = id;
   res.redirect('/urls');
 });
 
