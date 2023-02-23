@@ -7,6 +7,8 @@ app.set('view engine', 'ejs');
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+const bcrypt = require('bcryptjs');
+
 const PORT = 8080;
 
 
@@ -15,11 +17,11 @@ const PORT = 8080;
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
+    userID: "q94",
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "aJ48lW",
+    userID: "q94",
   },
   goober: {
     longURL: "https://www.youtube.com",
@@ -28,26 +30,30 @@ const urlDatabase = {
 };
 
 const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-  },
-  aJ48lW: {
-    id: "aJ48lW",
-    email: "a@a.com",
-    password: "b",
-  },
-  abcd: {
-    id: "abcd",
-    email: "b@b.com",
-    password: "b",
-  },
+  q94: {
+    id:'q94',
+    email:'a@a.com',
+    password:'$2a$10$oEkHZrvX16QNiACXF8tS6uIQ2fKhreFG6PDPtboBlCt8B9md5Qkjm'}  // password: a
+  // userRandomID: {
+  //   id: "userRandomID",
+  //   email: "user@example.com",
+  //   password: "purple-monkey-dinosaur",
+  // },
+  // user2RandomID: {
+  //   id: "user2RandomID",
+  //   email: "user2@example.com",
+  //   password: "dishwasher-funk",
+  // },
+  // aJ48lW: {
+  //   id: "aJ48lW",
+  //   email: "a@a.com",
+  //   password: "b",
+  // },
+  // abcd: {
+  //   id: "abcd",
+  //   email: "b@b.com",
+  //   password: "b",
+  // },
 };
 
 
@@ -233,8 +239,10 @@ app.post('/login', (req, res) => {
   const password = req.body.password;
   const targetUser = findUserByEmail(email);
 
+  const correctPassword = bcrypt.compareSync(password, targetUser.password);
+
    // Edge case - user does not exist or wrong password
-   if (!targetUser || targetUser.password !== password) {
+   if (!targetUser || !correctPassword) {
     return res.status(403).send('403 - Forbidden <br> Invalid username and password combination')
   };
 
@@ -251,7 +259,8 @@ app.post('/logout', (req, res) => {
 // Register new user
 app.post('/register',(req, res) =>{
   const email = req.body.email;
-  const password = req.body.password;
+  // const password = req.body.password;
+  const password = bcrypt.hashSync(req.body.password, 10);
 
   // Edge case - user already exists
   if (findUserByEmail(email)) {
@@ -269,7 +278,6 @@ app.post('/register',(req, res) =>{
     password,
   };
   users[id] = newUser;
-
   res.cookie('user_id', id);
   res.redirect('/urls');
 });
