@@ -6,7 +6,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ![You can log in!](https://github.com/Jason-Wall/tinyapp/blob/main/docs/TinyApp_Login.png)\
 ![Manage your list of URLs!](https://github.com/Jason-Wall/tinyapp/blob/main/docs/TinyApp_Urls.png)\
-![Edit URLs!](https://github.com/Jason-Wall/tinyapp/blob/main/docs/TinyApp_EditURL.png)\
+![Edit URLs!](https://github.com/Jason-Wall/tinyapp/blob/main/docs/TinyApp_EditURL.png)
 
 
 ## Dependencies
