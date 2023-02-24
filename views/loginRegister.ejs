@@ -22,7 +22,7 @@
     <%- include('partials/_header') %>
     <main style="margin: 1em;">
       <h3><%= callToAction %></h3>
-      <form class="form-inline" action="/login" method="POST">
+      <form class="form-inline" action="<%= path %>" method="POST">
         <div class="form-group mb-2">
           <label for="email">Email:</label>
           <input
@@ -35,7 +35,7 @@
           <label for="password">Password:</label>
           <input
             class="form-control"
-            type="text"
+            type="password"
             name="password"
             placeholder="Password"
             style="width: 300px; margin: 1em"
