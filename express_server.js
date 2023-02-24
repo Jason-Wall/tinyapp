@@ -51,7 +51,7 @@ const users = {
     id:'q94',
     email:'a@a.com',
     password:'$2a$10$oEkHZrvX16QNiACXF8tS6uIQ2fKhreFG6PDPtboBlCt8B9md5Qkjm' // password: a
-  }  
+  }
   
 };
 
@@ -63,7 +63,6 @@ app.listen(PORT, () => {
 
 // GETS ////////////////
 
-// Go to summary/ home page.
 app.get('/', (req, res) => {
   if (!req.session.user_id) {
     return res.redirect('/login');
@@ -71,6 +70,7 @@ app.get('/', (req, res) => {
   res.redirect('/urls');
 });
 
+// Go to summary/ home page.
 app.get('/urls', (req, res) => {
   if (!req.session.user_id) {
     return res.redirect('/login');
@@ -135,7 +135,7 @@ app.get('/register', (req, res) => {
   if (req.session.user_id) {
     return res.redirect('/urls');
   }
-  const templateVars = {user_id: null, callToAction: 'Create an account:'};
+  const templateVars = {user_id: null, callToAction: 'Create an account:', path: '/register'};
   res.render('loginRegister', templateVars);
 });
 
@@ -144,7 +144,7 @@ app.get('/login', (req, res) => {
   if (req.session.user_id) {
     return res.redirect('/urls');
   }
-  const templateVars = {user_id: null, callToAction : 'Login:'};
+  const templateVars = {user_id: null, callToAction : 'Login:', path: '/login'};
   res.render('loginRegister',templateVars);
 });
 
@@ -199,7 +199,7 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  // Edge case - empy user or pass
+  // Edge case - empty user or pass
   if (!email || !password) {
     return res.status(400).send('400 - Bad Request - Invalid username and password combination');
   }
