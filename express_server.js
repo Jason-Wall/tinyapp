@@ -125,6 +125,9 @@ app.listen(PORT, () => {
 
   // Redirect to long URL page.
   app.get('/u/:id', (req, res) => {
+    if (!urlDatabase[req.params.id]) {
+      return res.status(404).send('404 - Not Found - Short URL not in user list');
+    }
     const longURL = urlDatabase[req.params.id].longURL;
     if (longURL) {
       return res.redirect(urlDatabase[req.params.id].longURL);
@@ -147,8 +150,8 @@ app.listen(PORT, () => {
     if (req.session.user_id) {
       return res.redirect('/urls')
     }
-    const templateVars = {user_id: null};
-    res.render('register', templateVars);
+    const templateVars = {user_id: null, callToAction: 'Create an account:'};
+    res.render('loginRegister', templateVars);
   });
 
   // Login Page
@@ -156,13 +159,12 @@ app.listen(PORT, () => {
     if (req.session.user_id) {
       return res.redirect('/urls')
     }
-    const templateVars = {user_id: null};
-    res.render('login',templateVars);
+    const templateVars = {user_id: null, callToAction : 'Login:'};
+    res.render('loginRegister',templateVars);
   });
 
 
-
-  // POSTS /////////////////
+  // POSTS ////////////////////////////////////////////////////
 
   // Create new url
   app.post('/urls', (req, res) => {
@@ -211,8 +213,13 @@ app.listen(PORT, () => {
   app.post('/login', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
-    const targetUser = findUserByEmail(email, users);
 
+    // Edge case - empy user or pass
+    if (!email || !password){
+      return res.status(400).send('400 - Bad Request - Invalid username and password combination');
+    };
+
+    const targetUser = findUserByEmail(email, users);
     const correctPassword = bcrypt.compareSync(password, targetUser.password);
 
     // Edge case - user does not exist or wrong password
