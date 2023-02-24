@@ -23,7 +23,7 @@
           <div class = "row justify-content-center">
             <h3>Edit URL:</h3>
           </div>
-        <form class="form-inline justify-content-center" action="/urls/<%= URLid %>" method="POST">
+        <form class="form-inline justify-content-center" method="POST" action="/urls/<%= URLid %>?_method=PUT" >
             <div class="form-group mb-2">
               <label for="longURL">New URL:</label>
               <input

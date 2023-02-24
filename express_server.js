@@ -4,6 +4,9 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
+const methodOverride = require('method-override');
+app.use(methodOverride('_method'));
+
 const morgan = require('morgan');
 app.use(morgan('dev'));
 
@@ -47,27 +50,9 @@ const users = {
   q94: {
     id:'q94',
     email:'a@a.com',
-    password:'$2a$10$oEkHZrvX16QNiACXF8tS6uIQ2fKhreFG6PDPtboBlCt8B9md5Qkjm'}  // password: a
-  // userRandomID: {
-  //   id: "userRandomID",
-  //   email: "user@example.com",
-  //   password: "purple-monkey-dinosaur",
-  // },
-  // user2RandomID: {
-  //   id: "user2RandomID",
-  //   email: "user2@example.com",
-  //   password: "dishwasher-funk",
-  // },
-  // aJ48lW: {
-  //   id: "aJ48lW",
-  //   email: "a@a.com",
-  //   password: "b",
-  // },
-  // abcd: {
-  //   id: "abcd",
-  //   email: "b@b.com",
-  //   password: "b",
-  // },
+    password:'$2a$10$oEkHZrvX16QNiACXF8tS6uIQ2fKhreFG6PDPtboBlCt8B9md5Qkjm' // password: a
+  }  
+  
 };
 
 
@@ -179,7 +164,7 @@ app.post('/urls', (req, res) => {
 });
 
 // Delete Entry
-app.post('/urls/:id/delete', (req, res) => {
+app.delete('/urls/:id/delete', (req, res) => {
   if (!req.session.user_id) {
     return res.status(403).send('403 - Forbidden - Login to view content');
   }
@@ -194,7 +179,7 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 
 // Edit Entry
-app.post('/urls/:id', (req, res) => {
+app.put('/urls/:id', (req, res) => {
   if (!req.session.user_id) {
     return res.status(403).send('403 - Forbidden - Login to view content');
   }
