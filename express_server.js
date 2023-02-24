@@ -26,40 +26,11 @@ const {
   validateURLForUser
 } = require('./helpers.js'); //Helper functions
 
+const urlDatabase = require('./urlDatabase');
+
+const users = require('./userDatabase');
+
 const PORT = 8080;
-
-
-// DATABASE ////////////
-
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "q94",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "q94",
-  },
-  goober: {
-    longURL: "https://www.youtube.com",
-    userID: "abcd",
-  },
-};
-
-const users = {
-  q94: {
-    id:'q94',
-    email:'a@a.com',
-    password:'$2a$10$oEkHZrvX16QNiACXF8tS6uIQ2fKhreFG6PDPtboBlCt8B9md5Qkjm' // password: a
-  }
-  
-};
-
-
-// SERVER /////////////////////////////////
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
 
 // GETS ////////////////
 
@@ -73,7 +44,7 @@ app.get('/', (req, res) => {
 // Go to summary/ home page.
 app.get('/urls', (req, res) => {
   if (!req.session.user_id) {
-    return res.redirect('/login');
+    return res.status(403).send('403 - Forbidden - Login to view content');
   }
     
   const userURLs = urlsForUser(req.session.user_id, urlDatabase);
@@ -94,7 +65,7 @@ app.get('/urls/new', (req, res) => {
 // Go to individual short URL page
 app.get('/urls/:id', (req, res) => {
   if (!req.session.user_id) {
-    return res.redirect('/login');
+    return res.status(403).send('403 - Forbidden - Login to view content');
   }
 
   const URLid = req.params.id;
@@ -248,4 +219,9 @@ app.post('/register',(req, res) =>{
   res.redirect('/urls');
 });
 
+
+// SERVER /////////////////////////////////
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
 
