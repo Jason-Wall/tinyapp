@@ -13,29 +13,29 @@ const findUserByEmail = (email, users) => {
   for (let id of allKeys) {
     if (users[id].email === email) {
       return users[id];
-    };
-  };
+    }
+  }
   return null;
 };
 
 const urlsForUser = (user_id, urlDatabase) => {
   const allKeys = Object.keys(urlDatabase);
-  const userURLs ={};
+  const userURLs = {};
   for (let entry of allKeys) {
     if (urlDatabase[entry].userID === user_id) {
       userURLs[entry] = urlDatabase[entry];
-    };
-  };
+    }
+  }
   return userURLs;
-}
+};
 
 const validateURLForUser = (URLid, user_id, urlDatabase) => {
   const userURLs = urlsForUser(user_id, urlDatabase);
-  if (!userURLs[URLid]){
+  if (!userURLs[URLid]) {
     return false;
-  };
-  return true
-}
+  }
+  return true;
+};
 
 module.exports = {
   generateRandomString,
